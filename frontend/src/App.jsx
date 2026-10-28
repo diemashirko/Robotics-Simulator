@@ -8,7 +8,11 @@ import { uploadFile } from "./api/upload";
 
 function App() {
 
-  const [file, setFile] = useState(null);
+  const [file, setFile] =
+    useState(null);
+
+  const [modelUrl, setModelUrl] =
+    useState(null);
 
   useEffect(() => {
 
@@ -22,6 +26,7 @@ function App() {
           "Upload success:",
           result
         );
+        setModelUrl(result.url);
       })
       .catch((error) => {
         console.error(
@@ -68,7 +73,13 @@ function App() {
             args={[5]}
           />
 
-          <STLModel />
+          {
+            modelUrl && (
+              <STLModel
+                modelUrl={modelUrl}
+              />
+            )
+          }
 
           <OrbitControls />
         </Canvas>
