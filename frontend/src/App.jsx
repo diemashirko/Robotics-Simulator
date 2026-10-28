@@ -9,14 +9,14 @@ import ModelInfo from "./components/ModelInfo";
 
 function App() {
 
-  const [modelInfo, setModelInfo]
-    = useState(null);
+  const [modelInfos, setModelInfos]
+    = useState([]);
 
     const [file, setFile] =
     useState(null);
 
-  const [modelUrl, setModelUrl] =
-    useState(null);
+  const [models, setModels] =
+    useState([]);
 
   useEffect(() => {
 
@@ -30,14 +30,18 @@ function App() {
           "Upload success:",
           result
         );
-        console.log(
-          "Model URL:",
-          result.url
-        );
+        setModels((current) => [
 
-        setModelUrl(
-          result.url
-        );
+          ...current,
+
+          {
+            id: Date.now(),
+            name: file.name,
+            url: result.url
+          }
+
+        ]);
+
       })
       .catch((error) => {
         console.error(
@@ -61,8 +65,8 @@ function App() {
         }}
       >
         <ModelInfo
-        info={modelInfo}
-      />
+          infos={modelInfos}
+        />
         <Canvas
           camera={{
             position: [5, 5, 5],
@@ -88,26 +92,57 @@ function App() {
           />
 
           {
-            modelUrl && (
-              <STLModel
+            models.map(
+              (model, index) => (
 
-                modelUrl={modelUrl}
+                <STLModel
 
-                onLoaded={(data) => {
+                  key={model.id}
 
-                  setModelInfo({
+                  modelUrl={model.url}
 
-                    ...data,
+                  position={[
+                    index * 3,
+                    0,
+                    0
+                  ]}
 
-                    name:
-                      file?.name ??
-                      "Unknown"
+                  onLoaded={(data) => {
 
-                  });
+                    setModelInfos(
+                      (current) => {
 
-                }}
+                        const exists =
+                          current.find(
+                            x =>
+                              x.name ===
+                              model.name
+                          );
 
-              />
+                        if (exists) {
+                          return current;
+                        }
+
+                        return [
+
+                          ...current,
+
+                          {
+                            ...data,
+
+                            name: model.name
+                          }
+
+                        ];
+
+                      }
+                    );
+
+                  }}
+
+                />
+
+              )
             )
           }
 

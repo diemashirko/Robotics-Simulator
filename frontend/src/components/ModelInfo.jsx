@@ -1,8 +1,11 @@
 export default function ModelInfo({
-  info
+  infos
 }) {
 
-  if (!info) {
+  if (
+    !infos ||
+    infos.length === 0
+  ) {
     return null;
   }
 
@@ -14,45 +17,66 @@ export default function ModelInfo({
         top: 20,
         right: 20,
         zIndex: 1000,
-        width: "250px",
+        width: "300px",
         background: "white",
         padding: "10px",
         borderRadius: "8px",
-        boxShadow:
-          "0 0 10px rgba(0,0,0,0.2)"
+        maxHeight: "80vh",
+        overflowY: "auto"
       }}
     >
 
       <h3>
-        Model Info
+        Assembly Info
       </h3>
 
-      <p>
-        Name:
-        {info.name}
-      </p>
+      {
 
-      <p>
-        Triangles:
-        {info.triangles}
-      </p>
+        infos.map(
+          (info) => (
 
-      <p>
-        Width:
-        {info.width}
-      </p>
+            <div
+              key={info.name}
+              style={{
+                marginBottom: "20px",
+                borderBottom:
+                  "1px solid #ccc"
+              }}
+            >
 
-      <p>
-        Height:
-        {info.height}
-      </p>
+              <h4>
+                {info.name}
+              </h4>
 
-      <p>
-        Depth:
-        {info.depth}
-      </p>
+              <p>
+                Triangles:
+                {info.triangles}
+              </p>
+
+              <p>
+                Width:
+                {info.width}
+              </p>
+
+              <p>
+                Height:
+                {info.height}
+              </p>
+
+              <p>
+                Depth:
+                {info.depth}
+              </p>
+
+            </div>
+
+          )
+        )
+
+      }
 
     </div>
 
   );
+
 }

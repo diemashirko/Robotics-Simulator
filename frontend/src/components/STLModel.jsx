@@ -1,9 +1,10 @@
 import { useLoader } from "@react-three/fiber";
-import { STLLoader }
-  from "three/examples/jsm/loaders/STLLoader.js";
+import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
+import { useEffect } from "react";
 
 export default function STLModel({
   modelUrl,
+  position,
   onLoaded
 })
  {
@@ -39,7 +40,13 @@ export default function STLModel({
   const depth =
     box.max.z - box.min.z;
 
-  if (onLoaded) {
+  console.log( "Sending geometry data" );
+   
+  useEffect(() => {
+
+    if (!onLoaded) {
+      return;
+    }
 
     onLoaded({
 
@@ -58,12 +65,13 @@ export default function STLModel({
 
     });
 
-  }
+  }, []);
 
   return (
     <mesh
       geometry={geometry}
       scale={0.1}
+      position={position}
     >
       <meshStandardMaterial
         color="orange"
