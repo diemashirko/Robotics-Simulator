@@ -5,7 +5,9 @@ import { useEffect } from "react";
 export default function STLModel({
   modelUrl,
   position,
-  onLoaded
+  onLoaded,
+  onSelect,
+  selected
 })
  {
 
@@ -72,9 +74,19 @@ export default function STLModel({
       geometry={geometry}
       scale={0.1}
       position={position}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (onSelect) {
+          onSelect();
+        }
+      }}
     >
       <meshStandardMaterial
-        color="orange"
+        color={
+          selected
+            ? "red"
+            : "orange"
+        } 
       />
     </mesh>
   );

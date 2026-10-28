@@ -1,5 +1,6 @@
 export default function ModelInfo({
-  infos
+  infos,
+  selectedPartName
 }) {
 
   if (
@@ -29,7 +30,15 @@ export default function ModelInfo({
       <h3>
         Assembly Info
       </h3>
-
+      
+      <p>
+        Selected:
+        {
+            selectedPartName
+                ? selectedPartName
+                : "None"
+        }
+      </p>
       {
 
         infos.map(
@@ -39,8 +48,7 @@ export default function ModelInfo({
               key={info.name}
               style={{
                 marginBottom: "20px",
-                borderBottom:
-                  "1px solid #ccc"
+                borderBottom:"1px solid #ccc"
               }}
             >
 

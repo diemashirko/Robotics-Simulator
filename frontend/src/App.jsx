@@ -8,7 +8,7 @@ import { uploadFile } from "./api/upload";
 import ModelInfo from "./components/ModelInfo";
 
 function App() {
-
+  
   const [modelInfos, setModelInfos]
     = useState([]);
 
@@ -17,6 +17,15 @@ function App() {
 
   const [models, setModels] =
     useState([]);
+
+  const [selectedPart,
+    setSelectedPart]
+    = useState(null);
+
+    const selectedModel = models.find(
+    (model) =>
+      model.id === selectedPart
+  );
 
   useEffect(() => {
 
@@ -57,16 +66,22 @@ function App() {
       <FileUploader
         onFileSelected={setFile}
       />
+      <ModelInfo
 
+        infos={modelInfos}
+
+        selectedPartName={
+          selectedModel
+            ?.name
+        }
+
+      />
       <div
         style={{
           width: "100vw",
           height: "100vh",
         }}
       >
-        <ModelInfo
-          infos={modelInfos}
-        />
         <Canvas
           camera={{
             position: [5, 5, 5],
@@ -107,6 +122,18 @@ function App() {
                     0
                   ]}
 
+                  selected={
+                    selectedPart ===
+                    model.id
+                  }
+
+                  onSelect={() => {
+
+                    setSelectedPart(
+                      model.id
+                    );
+
+                  }}
                   onLoaded={(data) => {
 
                     setModelInfos(
