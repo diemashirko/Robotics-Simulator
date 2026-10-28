@@ -1,6 +1,7 @@
 import { useLoader } from "@react-three/fiber";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 import { useEffect } from "react";
+import { useRef } from "react";
 
 export default function STLModel({
   modelUrl,
@@ -11,7 +12,7 @@ export default function STLModel({
   selected
 })
  {
-
+  const meshRef = useRef();
   console.log(
     "Loading:",
     modelUrl
@@ -68,20 +69,26 @@ export default function STLModel({
 
     });
 
+
   }, []);
 
   return (
     <mesh
+      ref={meshRef}
       geometry={geometry}
       scale={0.1}
       position={position}
+      rotation={rotation}
       onClick={(event) => {
         event.stopPropagation();
-        if (onSelect) {
-          onSelect();
+        console.log(
+          meshRef.current
+        );
+        onSelect(meshRef.current);
         }
-      }}
-      rotation={rotation}
+      
+      }
+      
     >
       <meshStandardMaterial
         color={

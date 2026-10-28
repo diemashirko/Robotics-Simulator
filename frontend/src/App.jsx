@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, TransformControls } from "@react-three/drei";
 
 import STLModel from "./components/STLModel";
 import FileUploader from "./components/FileUploader";
@@ -12,7 +12,7 @@ function App() {
   const [modelInfos, setModelInfos]
     = useState([]);
 
-    const [file, setFile] =
+  const [file, setFile] =
     useState(null);
 
   const [models, setModels] =
@@ -22,10 +22,13 @@ function App() {
     setSelectedPart]
     = useState(null);
 
-    const selectedModel = models.find(
+  const selectedModel = models.find(
     (model) =>
-      model.id === selectedPart
-  );
+      model.id === selectedPart);
+    
+  const transformRef = useRef();
+  const [selectedMesh, setSelectedMesh] = useState(null);
+  const [ dragging, setDragging ] = useState(false);
   function moveSelected(
     dx,
     dy,
@@ -238,12 +241,12 @@ function App() {
                     model.id
                   }
 
-                  onSelect={() => {
+                  onSelect={(mesh) => {
 
                     setSelectedPart(
                       model.id
                     );
-
+                    setSelectedMesh(mesh);
                   }}
                   onLoaded={(data) => {
 
@@ -284,7 +287,77 @@ function App() {
             )
           }
 
-          <OrbitControls />
+          <OrbitControls 
+            enabled={!dragging}
+          />
+
+          {
+
+            selectedMesh && (
+
+              <TransformControls
+                object={
+                  selectedMesh
+                }
+                mode="translate"
+
+                onMouseDown={() => {
+                  setDragging(true);
+
+                }}
+                onMouseUp={() => {
+
+                  setDragging(false);
+
+                }}
+                onObjectChange={() => {
+
+                  if (
+                    !selectedMesh
+                  ) return;
+
+                  const position = [
+
+                    selectedMesh.position.x,
+
+                    selectedMesh.position.y,
+
+                    selectedMesh.position.z
+
+                  ];
+
+                  setModels(
+                    current =>
+
+                      current.map(
+                        model => {
+
+                          if (
+                            model.id !==
+                            selectedPart
+                          ) {
+                            return model;
+                          }
+
+                          return {
+
+                            ...model,
+
+                            position
+
+                          };
+
+                        }
+                      )
+
+                  );
+
+                }}
+              />
+
+            )
+
+          }
         </Canvas>
       </div>
     </>
