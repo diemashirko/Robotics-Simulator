@@ -129,6 +129,7 @@ export default function ModelInfo({
         )
 
       }
+
       <button
         onClick={() => {
           moveSelected(

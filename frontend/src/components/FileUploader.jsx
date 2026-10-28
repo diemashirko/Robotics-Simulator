@@ -1,5 +1,7 @@
 export default function FileUploader({
   onFileSelected,
+  saveAssembly,
+  loadAssembly
 }) {
 
   const handleChange = (event) => {
@@ -23,12 +25,30 @@ export default function FileUploader({
         padding: "10px",
         borderRadius: "8px",
       }}
+      
     >
       <input
         type="file"
         accept=".stl"
         onChange={handleChange}
       />
+            <button
+        onClick={() => {
+          console.log("Saving assembly");
+          saveAssembly();
+        }}
+      >
+        Save Assembly
+      </button>
+
+      <button
+        onClick={() => {
+          console.log("Loading assembly");
+          loadAssembly();
+        }}
+      >
+        Load Assembly
+      </button>
     </div>
   );
 }

@@ -173,6 +173,8 @@ function App() {
     <>
       <FileUploader
         onFileSelected={setFile}
+        saveAssembly={saveAssembly}
+        loadAssembly={loadAssembly}
       />
       <ModelInfo
 
@@ -191,6 +193,7 @@ function App() {
         }
         moveSelected={moveSelected}
         rotateSelected={rotateSelected}
+
       />
       <div
         style={{
@@ -294,7 +297,10 @@ function App() {
           {
 
             selectedMesh && (
-
+              console.log(
+                "Selected mesh:",
+                selectedMesh
+              ),
               <TransformControls
                 object={
                   selectedMesh
@@ -362,6 +368,51 @@ function App() {
       </div>
     </>
   );
+  function saveAssembly() {
+
+    const assembly = {
+
+      models: models
+
+    };
+
+    localStorage.setItem(
+
+      "robotAssembly",
+
+      JSON.stringify(
+        assembly
+      )
+
+    );
+
+    console.log(
+      "Assembly Saved"
+    );
+
+  }
+  function loadAssembly() {
+
+    const saved =
+
+      localStorage.getItem(
+        "robotAssembly"
+      );
+
+    if (!saved) {
+
+      return;
+
+    }
+
+    const data =
+      JSON.parse(saved);
+
+    setModels(
+      data.models
+    );
+
+  }
 }
 
 export default App;
