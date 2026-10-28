@@ -26,7 +26,66 @@ function App() {
     (model) =>
       model.id === selectedPart
   );
+  function moveSelected(
+    dx,
+    dy,
+    dz
+  ) {
 
+    setModels(
+      current =>
+
+        current.map(
+          model => {
+
+            if (
+              model.id !==
+              selectedPart
+            ) {
+              return model;
+            }
+
+            const newPosition = [
+
+              model.position[0]
+                + dx,
+
+              model.position[1]
+                + dy,
+
+              model.position[2]
+                + dz
+
+            ];
+            console.log(
+              "moving",
+              model.name,
+              newPosition
+            );
+            return {
+
+              ...model,
+
+              position: [
+
+                model.position[0]
+                  + dx,
+
+                model.position[1]
+                  + dy,
+
+                model.position[2]
+                  + dz
+
+              ]
+
+            };
+
+          }
+        )
+    );
+
+  }
   useEffect(() => {
 
     if (!file) return;
@@ -46,7 +105,9 @@ function App() {
           {
             id: Date.now(),
             name: file.name,
-            url: result.url
+            url: result.url,
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
           }
 
         ]);
@@ -74,7 +135,7 @@ function App() {
           selectedModel
             ?.name
         }
-
+        moveSelected={moveSelected}
       />
       <div
         style={{
@@ -116,11 +177,7 @@ function App() {
 
                   modelUrl={model.url}
 
-                  position={[
-                    index * 3,
-                    0,
-                    0
-                  ]}
+                  position={model.position}
 
                   selected={
                     selectedPart ===

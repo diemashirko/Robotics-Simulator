@@ -1,6 +1,7 @@
 export default function ModelInfo({
   infos,
-  selectedPartName
+  selectedPartName,
+  moveSelected
 }) {
 
   if (
@@ -82,7 +83,72 @@ export default function ModelInfo({
         )
 
       }
-
+      <button
+        onClick={() => {
+          moveSelected(
+            0.5,
+            0,
+            0
+          );
+        }}
+      >
+        Move +X
+      </button>
+      <button
+        onClick={() => {
+          moveSelected(
+            -0.5,
+            0,
+            0
+          );
+        }}
+      >
+        Move -X
+      </button>
+      <button
+        onClick={() => {
+          moveSelected(
+            0,
+            0.5,
+            0
+          );
+        }}
+      >
+        Move +Y
+      </button>
+      <button
+        onClick={() => {
+          moveSelected(
+            0,
+            -0.5,
+            0
+          );
+        }}
+      >
+        Move -Y
+      </button>
+      <button
+        onClick={() => {
+          moveSelected(
+            0,
+            0,
+            0.5
+          );
+        }}
+      >
+        Move +Z
+      </button>
+      <button
+        onClick={() => {
+          moveSelected(
+            0,
+            0,
+            -0.5
+          );
+        }}
+      >
+        Move -Z
+      </button>
     </div>
 
   );
