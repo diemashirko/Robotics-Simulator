@@ -5,6 +5,7 @@ import { useEffect } from "react";
 export default function STLModel({
   modelUrl,
   position,
+  rotation,
   onLoaded,
   onSelect,
   selected
@@ -80,6 +81,7 @@ export default function STLModel({
           onSelect();
         }
       }}
+      rotation={rotation}
     >
       <meshStandardMaterial
         color={

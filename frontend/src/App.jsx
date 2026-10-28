@@ -86,6 +86,50 @@ function App() {
     );
 
   }
+  function rotateSelected(
+    rx,
+    ry,
+    rz
+  ) {
+
+    setModels(
+      current =>
+
+        current.map(
+          model => {
+
+            if (
+              model.id !==
+              selectedPart
+            ) {
+              return model;
+            }
+
+            return {
+
+              ...model,
+
+              rotation: [
+
+                model.rotation[0]
+                  + rx,
+
+                model.rotation[1]
+                  + ry,
+
+                model.rotation[2]
+                  + rz
+
+              ]
+
+            };
+
+          }
+        )
+
+    );
+
+  }
   useEffect(() => {
 
     if (!file) return;
@@ -130,12 +174,20 @@ function App() {
       <ModelInfo
 
         infos={modelInfos}
-
+        selectedRotation={
+          selectedModel
+            ?.rotation
+        }
+        selectedPosition={
+          selectedModel
+            ?.position
+        }
         selectedPartName={
           selectedModel
             ?.name
         }
         moveSelected={moveSelected}
+        rotateSelected={rotateSelected}
       />
       <div
         style={{
@@ -178,6 +230,8 @@ function App() {
                   modelUrl={model.url}
 
                   position={model.position}
+
+                  rotation={model.rotation}
 
                   selected={
                     selectedPart ===

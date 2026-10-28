@@ -1,7 +1,10 @@
 export default function ModelInfo({
   infos,
   selectedPartName,
-  moveSelected
+  selectedRotation,
+  selectedPosition,
+  moveSelected,
+  rotateSelected
 }) {
 
   if (
@@ -56,7 +59,50 @@ export default function ModelInfo({
               <h4>
                 {info.name}
               </h4>
+              <p>
 
+                Rotation (degrees):
+
+                {
+
+                  selectedRotation
+                    ? selectedRotation
+                        .map(
+                          value =>
+                          (
+                            value * 180 / Math.PI
+                          ).toFixed(1)
+                        )
+                        .join(", ")
+                    : "0, 0, 0"
+
+                }
+
+              </p>
+              <p> 
+                X:
+                {
+                  selectedPosition
+                    ? selectedPosition[0].toFixed(2) 
+                    : "0.00"
+                }
+              </p>
+              <p>
+                Y:
+                {
+                  selectedPosition
+                    ? selectedPosition[1].toFixed(2)
+                    : "0.00"
+                }
+              </p>
+              <p>
+                Z:
+                {
+                  selectedPosition
+                    ? selectedPosition[2].toFixed(2)
+                    : "0.00"
+                }
+              </p>
               <p>
                 Triangles:
                 {info.triangles}
@@ -148,6 +194,72 @@ export default function ModelInfo({
         }}
       >
         Move -Z
+      </button>
+      <button
+        onClick={() => {
+          rotateSelected(
+            0.2,
+            0,
+            0
+          );
+        }}
+      >
+        Rotate +X
+      </button>
+      <button
+        onClick={() => {
+          rotateSelected(
+            -0.2,
+            0,
+            0
+          );
+        }}
+      >
+        Rotate -X
+      </button>
+      <button
+        onClick={() => {
+          rotateSelected(
+            0,
+            0.2,
+            0
+          );
+        }}
+      >
+        Rotate +Y
+      </button>
+      <button
+        onClick={() => {
+          rotateSelected(
+            0,
+            -0.2,
+            0
+          );
+        }}
+      >
+        Rotate -Y
+      </button>
+      <button
+        onClick={() => {
+          rotateSelected(
+            0,
+            0,
+            0.2
+          );
+        }}
+      >
+        Rotate +Z
+      </button>
+      <button
+        onClick={() => {
+          rotateSelected(
+            0,
+            0,
+            -0.2
+          );
+        }}
+      >
+        Rotate -Z
       </button>
     </div>
 
