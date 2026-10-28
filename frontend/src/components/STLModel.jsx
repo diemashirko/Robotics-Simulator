@@ -1,76 +1,43 @@
 import { useLoader } from "@react-three/fiber";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
-import { useEffect } from "react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export default function STLModel({
   modelUrl,
+  modelId,
   position,
   rotation,
   onLoaded,
   onSelect,
   selected
-})
- {
+}) {
   const meshRef = useRef();
-  console.log(
-    "Loading:",
-    modelUrl
-  );
 
   const geometry = useLoader(
     STLLoader,
     modelUrl
   );
 
-  console.log(
-    "Geometry loaded:",
-    geometry
-  );
-
   geometry.center();
-
   geometry.computeBoundingBox();
 
-  const box =
-    geometry.boundingBox;
+  const box = geometry.boundingBox;
+  const width = box.max.x - box.min.x;
+  const height = box.max.y - box.min.y;
+  const depth = box.max.z - box.min.z;
 
-  const width =
-    box.max.x - box.min.x;
-
-  const height =
-    box.max.y - box.min.y;
-
-  const depth =
-    box.max.z - box.min.z;
-
-  console.log( "Sending geometry data" );
-   
   useEffect(() => {
-
     if (!onLoaded) {
       return;
     }
 
-    onLoaded({
-
-      triangles:
-        geometry.attributes
-          .position.count / 3,
-
-      width:
-        width.toFixed(2),
-
-      height:
-        height.toFixed(2),
-
-      depth:
-        depth.toFixed(2)
-
+    onLoaded(modelId, {
+      triangles: geometry.attributes.position.count / 3,
+      width: width.toFixed(2),
+      height: height.toFixed(2),
+      depth: depth.toFixed(2)
     });
-
-
-  }, []);
+  }, [depth, geometry, height, modelId, onLoaded, width]);
 
   return (
     <mesh
@@ -81,21 +48,15 @@ export default function STLModel({
       rotation={rotation}
       onClick={(event) => {
         event.stopPropagation();
-        console.log(
-          meshRef.current
-        );
         onSelect(meshRef.current);
-        }
-      
-      }
-      
+      }}
     >
       <meshStandardMaterial
         color={
           selected
             ? "red"
             : "orange"
-        } 
+        }
       />
     </mesh>
   );

@@ -1,21 +1,30 @@
 export default function ModelInfo({
   infos,
-  selectedPartName,
-  selectedRotation,
-  selectedPosition,
-  moveSelected,
-  rotateSelected
+  models,
+  selectedParent,
+  selectedChildren
 }) {
+  const sectionStyle = {
+    borderTop: "1px solid #ccc",
+    marginTop: "8px",
+    paddingTop: "6px"
+  };
 
-  if (
-    !infos ||
-    infos.length === 0
-  ) {
-    return null;
-  }
+  const detailStyle = {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "2px 8px",
+    fontSize: "14px",
+    lineHeight: 1.3
+  };
+
+  const headingStyle = {
+    margin: "4px 0 2px",
+    fontSize: "15px",
+    lineHeight: 1.3
+  };
 
   return (
-
     <div
       style={{
         position: "absolute",
@@ -24,246 +33,81 @@ export default function ModelInfo({
         zIndex: 1000,
         width: "300px",
         background: "white",
-        padding: "10px",
+        color: "#222",
+        padding: "8px",
         borderRadius: "8px",
         maxHeight: "80vh",
-        overflowY: "auto"
+        overflowY: "auto",
+        textAlign: "left",
+        fontSize: "14px",
+        lineHeight: 1.35
       }}
     >
-
-      <h3>
+      <h3 style={{ margin: "0 0 6px", fontSize: "18px", lineHeight: 1.3 }}>
         Assembly Info
       </h3>
-      
-      <p>
-        Selected:
-        {
-            selectedPartName
-                ? selectedPartName
-                : "None"
-        }
-      </p>
-      {
 
-        infos.map(
-          (info) => (
+      <section>
+        <h4 style={headingStyle}>Parent</h4>
+        <p>{selectedParent?.name ?? "None"}</p>
 
-            <div
-              key={info.name}
-              style={{
-                marginBottom: "20px",
-                borderBottom:"1px solid #ccc"
-              }}
-            >
+        <h4 style={headingStyle}>Children</h4>
+        {selectedChildren.length > 0 ? (
+          <ul style={{ margin: "2px 0 0", paddingLeft: "18px" }}>
+            {selectedChildren.map((child) => (
+              <li key={child.id}>{child.name}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>None</p>
+        )}
+      </section>
 
-              <h4>
-                {info.name}
-              </h4>
-              <p>
+      <section style={sectionStyle}>
+        <h4 style={{ ...headingStyle, marginTop: 0 }}>Parts</h4>
+        {models.length === 0 ? (
+          <p>No parts loaded</p>
+        ) : (
+          models.map((model) => {
+            const info = infos.find((item) => item.id === model.id);
+            const rotation = model.rotation
+              .map((value) => (value * 180 / Math.PI).toFixed(1))
+              .join(", ");
 
-                Rotation (degrees):
+            return (
+              <div
+                key={model.id}
+                style={{
+                  ...sectionStyle,
+                  marginTop: "6px",
+                  paddingTop: "5px"
+                }}
+              >
+                <h4 style={{ ...headingStyle, marginTop: 0 }}>{model.name}</h4>
+                <div style={detailStyle}>
+                  <span>Rotation:</span>
+                  <span>{rotation}°</span>
+                  <span>X:</span>
+                  <span>{model.position[0].toFixed(2)}</span>
+                  <span>Y:</span>
+                  <span>{model.position[1].toFixed(2)}</span>
+                  <span>Z:</span>
+                  <span>{model.position[2].toFixed(2)}</span>
+                  <span>Triangles:</span>
+                  <span>{info?.triangles ?? "Loading…"}</span>
+                  <span>Width:</span>
+                  <span>{info?.width ?? "Loading…"}</span>
+                  <span>Height:</span>
+                  <span>{info?.height ?? "Loading…"}</span>
+                  <span>Depth:</span>
+                  <span>{info?.depth ?? "Loading…"}</span>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </section>
 
-                {
-
-                  selectedRotation
-                    ? selectedRotation
-                        .map(
-                          value =>
-                          (
-                            value * 180 / Math.PI
-                          ).toFixed(1)
-                        )
-                        .join(", ")
-                    : "0, 0, 0"
-
-                }
-
-              </p>
-              <p> 
-                X:
-                {
-                  selectedPosition
-                    ? selectedPosition[0].toFixed(2) 
-                    : "0.00"
-                }
-              </p>
-              <p>
-                Y:
-                {
-                  selectedPosition
-                    ? selectedPosition[1].toFixed(2)
-                    : "0.00"
-                }
-              </p>
-              <p>
-                Z:
-                {
-                  selectedPosition
-                    ? selectedPosition[2].toFixed(2)
-                    : "0.00"
-                }
-              </p>
-              <p>
-                Triangles:
-                {info.triangles}
-              </p>
-
-              <p>
-                Width:
-                {info.width}
-              </p>
-
-              <p>
-                Height:
-                {info.height}
-              </p>
-
-              <p>
-                Depth:
-                {info.depth}
-              </p>
-
-            </div>
-
-          )
-        )
-
-      }
-
-      <button
-        onClick={() => {
-          moveSelected(
-            0.5,
-            0,
-            0
-          );
-        }}
-      >
-        Move +X
-      </button>
-      <button
-        onClick={() => {
-          moveSelected(
-            -0.5,
-            0,
-            0
-          );
-        }}
-      >
-        Move -X
-      </button>
-      <button
-        onClick={() => {
-          moveSelected(
-            0,
-            0.5,
-            0
-          );
-        }}
-      >
-        Move +Y
-      </button>
-      <button
-        onClick={() => {
-          moveSelected(
-            0,
-            -0.5,
-            0
-          );
-        }}
-      >
-        Move -Y
-      </button>
-      <button
-        onClick={() => {
-          moveSelected(
-            0,
-            0,
-            0.5
-          );
-        }}
-      >
-        Move +Z
-      </button>
-      <button
-        onClick={() => {
-          moveSelected(
-            0,
-            0,
-            -0.5
-          );
-        }}
-      >
-        Move -Z
-      </button>
-      <button
-        onClick={() => {
-          rotateSelected(
-            0.2,
-            0,
-            0
-          );
-        }}
-      >
-        Rotate +X
-      </button>
-      <button
-        onClick={() => {
-          rotateSelected(
-            -0.2,
-            0,
-            0
-          );
-        }}
-      >
-        Rotate -X
-      </button>
-      <button
-        onClick={() => {
-          rotateSelected(
-            0,
-            0.2,
-            0
-          );
-        }}
-      >
-        Rotate +Y
-      </button>
-      <button
-        onClick={() => {
-          rotateSelected(
-            0,
-            -0.2,
-            0
-          );
-        }}
-      >
-        Rotate -Y
-      </button>
-      <button
-        onClick={() => {
-          rotateSelected(
-            0,
-            0,
-            0.2
-          );
-        }}
-      >
-        Rotate +Z
-      </button>
-      <button
-        onClick={() => {
-          rotateSelected(
-            0,
-            0,
-            -0.2
-          );
-        }}
-      >
-        Rotate -Z
-      </button>
     </div>
-
   );
-
 }

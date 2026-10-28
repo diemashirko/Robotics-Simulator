@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, TransformControls } from "@react-three/drei";
 
@@ -6,6 +6,41 @@ import STLModel from "./components/STLModel";
 import FileUploader from "./components/FileUploader";
 import { uploadFile } from "./api/upload";
 import ModelInfo from "./components/ModelInfo";
+import ControlsPanel from "./components/ControlsPanel";
+
+function translateModelAndDescendants(models, modelId, dx, dy, dz) {
+  const movedIds = new Set();
+
+  function collectDescendants(parentId) {
+    if (movedIds.has(parentId)) {
+      return;
+    }
+
+    movedIds.add(parentId);
+    models.forEach((model) => {
+      if (model.parentId === parentId) {
+        collectDescendants(model.id);
+      }
+    });
+  }
+
+  collectDescendants(modelId);
+
+  return models.map((model) => {
+    if (!movedIds.has(model.id)) {
+      return model;
+    }
+
+    return {
+      ...model,
+      position: [
+        model.position[0] + dx,
+        model.position[1] + dy,
+        model.position[2] + dz,
+      ],
+    };
+  });
+}
 
 function App() {
   
@@ -26,69 +61,49 @@ function App() {
     (model) =>
       model.id === selectedPart);
     
-  const transformRef = useRef();
   const [selectedMesh, setSelectedMesh] = useState(null);
   const [ dragging, setDragging ] = useState(false);
-  function moveSelected(
-    dx,
-    dy,
-    dz
-  ) {
+  const [parentPart,setParentPart] = useState(null);
+  const selectedParent =
+  models.find(model => model.id === selectedModel?.parentId);
+  const parentToAttach = models.find(
+    (model) => model.id === parentPart
+  );
+  const selectedChildren = models.filter(
+    (model) => model.parentId === selectedPart
+  );
 
-    setModels(
-      current =>
+  const handleModelLoaded = useCallback((modelId, data) => {
+    setModelInfos((current) => {
+      const existing = current.find((info) => info.id === modelId);
+      if (
+        existing &&
+        existing.triangles === data.triangles &&
+        existing.width === data.width &&
+        existing.height === data.height &&
+        existing.depth === data.depth
+      ) {
+        return current;
+      }
 
-        current.map(
-          model => {
-
-            if (
-              model.id !==
-              selectedPart
-            ) {
-              return model;
-            }
-
-            const newPosition = [
-
-              model.position[0]
-                + dx,
-
-              model.position[1]
-                + dy,
-
-              model.position[2]
-                + dz
-
-            ];
-            console.log(
-              "moving",
-              model.name,
-              newPosition
-            );
-            return {
-
-              ...model,
-
-              position: [
-
-                model.position[0]
-                  + dx,
-
-                model.position[1]
-                  + dy,
-
-                model.position[2]
-                  + dz
-
-              ]
-
-            };
-
-          }
-        )
-    );
-
-  }
+      return [
+        ...current.filter((info) => info.id !== modelId),
+        { id: modelId, ...data },
+      ];
+    });
+  }, []);
+  
+function moveSelected(dx, dy, dz) {
+  setModels((current) =>
+    translateModelAndDescendants(
+      current,
+      selectedPart,
+      dx,
+      dy,
+      dz
+    )
+  );
+}
   function rotateSelected(
     rx,
     ry,
@@ -153,8 +168,9 @@ function App() {
             id: Date.now(),
             name: file.name,
             url: result.url,
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
+            position: [current.length * 5, 0, 0],
+            rotation: [0, 0, 0],
+            parentId: null
           }
 
         ]);
@@ -179,20 +195,17 @@ function App() {
       <ModelInfo
 
         infos={modelInfos}
-        selectedRotation={
-          selectedModel
-            ?.rotation
-        }
-        selectedPosition={
-          selectedModel
-            ?.position
-        }
-        selectedPartName={
-          selectedModel
-            ?.name
-        }
+        models={models}
+        selectedParent={selectedParent}
+        selectedChildren={selectedChildren}
+      />
+      <ControlsPanel
+        selectedModel={selectedModel}
+        parentToAttach={parentToAttach}
         moveSelected={moveSelected}
         rotateSelected={rotateSelected}
+        markAsParent={markAsParent}
+        attachToParent={attachToParent}
 
       />
       <div
@@ -227,13 +240,15 @@ function App() {
 
           {
             models.map(
-              (model, index) => (
+              (model) => (
 
                 <STLModel
 
                   key={model.id}
 
                   modelUrl={model.url}
+
+                  modelId={model.id}
 
                   position={model.position}
 
@@ -251,38 +266,7 @@ function App() {
                     );
                     setSelectedMesh(mesh);
                   }}
-                  onLoaded={(data) => {
-
-                    setModelInfos(
-                      (current) => {
-
-                        const exists =
-                          current.find(
-                            x =>
-                              x.name ===
-                              model.name
-                          );
-
-                        if (exists) {
-                          return current;
-                        }
-
-                        return [
-
-                          ...current,
-
-                          {
-                            ...data,
-
-                            name: model.name
-                          }
-
-                        ];
-
-                      }
-                    );
-
-                  }}
+                  onLoaded={handleModelLoaded}
 
                 />
 
@@ -322,7 +306,7 @@ function App() {
                     !selectedMesh
                   ) return;
 
-                  const position = [
+                  const newPosition = [
 
                     selectedMesh.position.x,
 
@@ -332,33 +316,24 @@ function App() {
 
                   ];
 
-                  setModels(
-                    current =>
+                  setModels((current) => {
+                    const model = current.find(
+                      (item) => item.id === selectedPart
+                    );
 
-                      current.map(
-                        model => {
+                    if (!model) {
+                      return current;
+                    }
 
-                          if (
-                            model.id !==
-                            selectedPart
-                          ) {
-                            return model;
-                          }
-
-                          return {
-
-                            ...model,
-
-                            position
-
-                          };
-
-                        }
-                      )
-
-                  );
-
-                }}
+                    return translateModelAndDescendants(
+                      current,
+                      selectedPart,
+                      newPosition[0] - model.position[0],
+                      newPosition[1] - model.position[1],
+                      newPosition[2] - model.position[2]
+                    );
+                  });
+                    }}
               />
 
             )
@@ -410,6 +385,47 @@ function App() {
 
     setModels(
       data.models
+    );
+
+  }
+  function markAsParent() {
+
+    setParentPart(
+      selectedPart
+    );
+
+  }
+  function attachToParent() {
+
+    if (
+      !parentPart ||
+      !selectedPart ||
+      parentPart === selectedPart
+    ) {
+      return;
+    }
+    setModels(
+      current =>
+
+        current.map(
+          model => {
+
+            if (
+              model.id !==
+              selectedPart
+            ) {
+              return model;
+            }
+            return {
+
+              ...model,
+
+              parentId:
+                parentPart
+
+            };
+          }
+        )
     );
 
   }
